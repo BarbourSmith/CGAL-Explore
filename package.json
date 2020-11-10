@@ -1,0 +1,14 @@
+{
+  "name": "getting-started-with-webassembly",
+  "version": "1",
+  "description": "Getting started with web assembly course code",
+  "main": "server.js",
+  "author": "Bar Smith (bar@maslowcnc.com)",
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

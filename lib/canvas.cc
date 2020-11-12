@@ -1,29 +1,55 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <CGAL/MP_Float.h>
 #include <emscripten.h>
 
+#include <CGAL/Simple_cartesian.h>
+#include <CGAL/Polyhedron_3.h>
 #include <iostream>
-#include <vector>
-#include <CGAL/Cartesian_d.h>
-#include <CGAL/point_generators_d.h>
 
-typedef CGAL::Cartesian_d<double>                           Kd;
-typedef Kd::Point_d                                         Point;
+template <class Poly>
+typename Poly::Halfedge_handle make_cube_3( Poly& P) {
+    // appends a cube of size [0,1]^3 to the polyhedron P.
+    CGAL_precondition( P.is_valid());
+    typedef typename Poly::Point_3         Point;
+    typedef typename Poly::Halfedge_handle Halfedge_handle;
+    Halfedge_handle h = P.make_tetrahedron( Point( 1, 0, 0),
+                                            Point( 0, 0, 1),
+                                            Point( 0, 0, 0),
+                                            Point( 0, 1, 0));
+    Halfedge_handle g = h->next()->opposite()->next();             // Fig. (a)
+    P.split_edge( h->next());
+    P.split_edge( g->next());
+    P.split_edge( g);                                              // Fig. (b)
+    h->next()->vertex()->point()     = Point( 1, 0, 1);
+    g->next()->vertex()->point()     = Point( 0, 1, 1);
+    g->opposite()->vertex()->point() = Point( 1, 1, 0);            // Fig. (c)
+    Halfedge_handle f = P.split_facet( g->next(),
+                                       g->next()->next()->next()); // Fig. (d)
+    Halfedge_handle e = P.split_edge( f);
+    e->vertex()->point() = Point( 1, 1, 1);                        // Fig. (e)
+    P.split_facet( e, f->next()->next());                          // Fig. (f)
+    CGAL_postcondition( P.is_valid());
+    return h;
+}
+
+
+typedef CGAL::Simple_cartesian<double>     Kernel;
+typedef CGAL::Polyhedron_3<Kernel>         Polyhedron;
+typedef Polyhedron::Halfedge_handle        Halfedge_handle;
+typedef Polyhedron::Vertex_iterator        Vertex_iterator;
 
 
 // Init circle data and start render - JS
 int main(){
-  int nb_points = 10;
-  int dim =5;
-  double size = 100.0;
-  std::cout << "Generating "<<nb_points<<" random points in a cube in "
-        <<dim<<"D, coordinates from "<<-size<<" to "<<size<<std::endl;
-  std::vector<Point> v;
-  v.reserve (nb_points);
-  CGAL::Random_points_in_cube_d<Point> gen (dim, size);
-  for (int i = 0; i < nb_points; ++i) v.push_back (*gen++);
-  for (int i = 0; i < nb_points; ++i) std::cout<<" "<<v[i]<<std::endl;
+
+    Polyhedron P;
+    Halfedge_handle h = make_cube_3( P);
+    
+    for ( Vertex_iterator v = P.vertices_begin(); v != P.vertices_end(); ++v)
+    std::cout << v->point() << std::endl;
+  
+    return (P.is_tetrahedron(h) ? 1 : 0);
+
   return 0;
 }

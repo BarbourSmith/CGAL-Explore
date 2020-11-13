@@ -52,13 +52,8 @@ extern "C"
 
 int displayShape(){
     
-    Point_3 p( 1.0, 0.0, 0.0);
-    Point_3 q( 0.0, 1.0, 0.0);
-    Point_3 r( 0.0, 0.0, 1.0);
-    Point_3 s( 0.0, 0.0, 0.0);
     Polyhedron P;
-    P.make_tetrahedron( p, q, r, s);
-    
+    Halfedge_handle h = make_cube_3( P);
     
     
     printf("Facets before: %lu\n", P.size_of_facets());

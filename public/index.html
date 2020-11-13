@@ -12,8 +12,9 @@
         </style>
     </head>
     <body>
-        <script src="canvas.js"></script>
         <script src="three.js"></script>
+        <script src="TrackballControls.js"></script>
+        <script src="canvas.js"></script>
         <script>
 
         let camera, scene, renderer;
@@ -35,30 +36,17 @@
             var light2 = new THREE.PointLight(0xffffff, 0.5);
             scene.add(light2);
             
-            let circles = new Int32Array( Module.HEAP32.buffer, _getDisplayBufferAddress(), _displayShape() )
-            
-            console.log(circles);
-            
             geometry = new THREE.BufferGeometry();
             // create a simple square shape. We duplicate the top left and bottom right
             // vertices because each vertex needs to appear once per triangle.
-            const vertices = new Float32Array( [
-                -1.0, -1.0,  1.0,
-                 1.0, -1.0,  1.0,
-                 1.0,  1.0,  1.0,
-
-                 1.0,  1.0,  1.0,
-                -1.0,  1.0,  1.0,
-                -1.0, -1.0,  1.0
-            ] );
+            const vertices = new Float32Array( Module.HEAP32.buffer, _getDisplayBufferAddress(), _displayShape() );
 
             // itemSize = 3 because there are 3 values (components) per vertex
             geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
             
             
             
-            material = new THREE.MeshLambertMaterial({color: 0xF3FFE2});
-
+            material = new THREE.MeshNormalMaterial();
             mesh = new THREE.Mesh( geometry, material );
             scene.add( mesh );
 
@@ -66,6 +54,8 @@
             renderer.setClearColor(0xFFFFFF);
             renderer.setSize( window.innerWidth, window.innerHeight );
             document.body.appendChild( renderer.domElement );
+            
+            //const controls = new TrackballControls( camera, renderer.domElement );
             
             animate();
 
@@ -77,7 +67,9 @@
 
             mesh.rotation.x += 0.01;
             mesh.rotation.y += 0.02;
-
+            
+            //controls.update();
+            
             renderer.render( scene, camera );
 
         }

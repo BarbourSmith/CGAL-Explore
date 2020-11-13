@@ -30,20 +30,26 @@
 
             scene = new THREE.Scene();
             
-            var light = new THREE.AmbientLight(0xffffff, 0.5);
+            var light =  new THREE.AmbientLight( 0x404040 );
             scene.add(light);
 
-            var light2 = new THREE.PointLight(0xffffff, 0.5);
+            var light2 = new THREE.PointLight(0xFFFFFF, 0.5);
             scene.add(light2);
             
             geometry = new THREE.BufferGeometry();
             // create a simple square shape. We duplicate the top left and bottom right
             // vertices because each vertex needs to appear once per triangle.
+            
+            const timeBefore = performance.now();
+            
             const vertices = new Float32Array( Module.HEAP32.buffer, _getDisplayBufferAddress(), _displayShape() );
+            
+            console.log("Elapsed time: " + (performance.now() - timeBefore)/1000);
 
             // itemSize = 3 because there are 3 values (components) per vertex
             geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
             
+            geometry.computeVertexNormals();
             
             material = new THREE.MeshNormalMaterial();
             mesh = new THREE.Mesh( geometry, material );
@@ -55,6 +61,10 @@
             document.body.appendChild( renderer.domElement );
             
             controls = new THREE.TrackballControls( camera, renderer.domElement );
+            controls.rotateSpeed = 1.7;
+            
+            const axesHelper = new THREE.AxesHelper( 5 );
+            scene.add( axesHelper );
             
             animate();
 

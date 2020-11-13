@@ -6,6 +6,7 @@
 #include <CGAL/Simple_cartesian.h>
 #include <CGAL/polygon_mesh_processing.h>
 #include <CGAL/Polyhedron_3.h>
+#include <CGAL/Nef_polyhedron_3.h>
 #include <iostream>
 
 template <class Poly>
@@ -42,10 +43,21 @@ typedef Polyhedron::Halfedge_handle        Halfedge_handle;
 typedef Polyhedron::Vertex_iterator        Vertex_iterator;
 typedef Polyhedron::Facet_iterator                   Facet_iterator;
 typedef Polyhedron::Halfedge_around_facet_circulator Halfedge_facet_circulator;
+typedef CGAL::Nef_polyhedron_3<Kernel> Nef_polyhedron;
+typedef Kernel::Vector_3  Vector_3;
+typedef Kernel::Aff_transformation_3  Aff_transformation_3;
 
 
 
 float displayBuffer[1000];
+
+Nef_polyhedron translate(Nef_polyhedron shape, int x, int y, int z){
+    
+    Aff_transformation_3 aff(CGAL::TRANSLATION, Vector_3(x, y, z));
+    shape.transform(aff);
+    
+    return shape;
+}
 
 extern "C"
 {
@@ -55,16 +67,33 @@ int displayShape(){
     Polyhedron P;
     Halfedge_handle h = make_cube_3( P);
     
+    Nef_polyhedron N1(P);
+    Nef_polyhedron initial(P);
     
-    printf("Facets before: %lu\n", P.size_of_facets());
+    for(int i = 0; i < 3; i++){
+        for(int j = 0; j < 3; j++){
+            for(int k = 0; k < 3; k++){
+                printf("i:  %i\n", i);
+                Nef_polyhedron N2(initial);
+                N2 = translate(N2,2*i,2*j,2*k);
+                N1 += N2;
+            }
+        }
+    }
     
-    CGAL::Polygon_mesh_processing::triangulate_faces(P);
+    Polyhedron P2;
+    N1.convert_to_polyhedron(P2);
     
-    printf("Facets after: %lu\n", P.size_of_facets());
+    
+    printf("Facets before: %lu\n", P2.size_of_facets());
+    
+    CGAL::Polygon_mesh_processing::triangulate_faces(P2);
+    
+    printf("Facets after: %lu\n", P2.size_of_facets());
     
     int index = 0;
     
-    for (  Facet_iterator i = P.facets_begin(); i != P.facets_end(); ++i) {
+    for (  Facet_iterator i = P2.facets_begin(); i != P2.facets_end(); ++i) {
         
         Halfedge_facet_circulator j = i->facet_begin();
         

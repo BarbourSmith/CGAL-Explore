@@ -19,8 +19,8 @@
         let camera, scene, renderer;
         let geometry, material, mesh;
 
-        init();
-        animate();
+        //init();
+        //animate();
 
         function init() {
 
@@ -34,7 +34,11 @@
 
             var light2 = new THREE.PointLight(0xffffff, 0.5);
             scene.add(light2);
-
+            
+            let circles = new Int32Array( Module.HEAP32.buffer, _getDisplayBufferAddress(), _displayShape() )
+            
+            console.log(circles);
+            
             geometry = new THREE.BufferGeometry();
             // create a simple square shape. We duplicate the top left and bottom right
             // vertices because each vertex needs to appear once per triangle.
@@ -62,6 +66,8 @@
             renderer.setClearColor(0xFFFFFF);
             renderer.setSize( window.innerWidth, window.innerHeight );
             document.body.appendChild( renderer.domElement );
+            
+            animate();
 
         }
 

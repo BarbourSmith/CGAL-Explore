@@ -66,13 +66,9 @@ int displayShape(){
     
     for (  Facet_iterator i = P.facets_begin(); i != P.facets_end(); ++i) {
         
-        printf("Ran once\n");
-        
         Halfedge_facet_circulator j = i->facet_begin();
         
         Vertex_iterator v = j->vertex();
-        std::cout << ' ' << v->point();
-        std::cout << std::endl;
         
         displayBuffer[index] = v->point()[0];
         displayBuffer[index+1] = v->point()[1];
@@ -81,8 +77,6 @@ int displayShape(){
         j++;
         
         Vertex_iterator w = j->vertex();
-        std::cout << ' ' << w->point();
-        std::cout << std::endl;
         
         displayBuffer[index+3] = w->point()[0];
         displayBuffer[index+4] = w->point()[1];
@@ -91,8 +85,6 @@ int displayShape(){
         j++;
         
         Vertex_iterator x = j->vertex();
-        std::cout << ' ' << x->point();
-        std::cout << std::endl;
         
         displayBuffer[index+6] = x->point()[0];
         displayBuffer[index+7] = x->point()[1];

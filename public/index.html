@@ -17,7 +17,7 @@
         <script src="canvas.js"></script>
         <script>
 
-        let camera, scene, renderer;
+        let camera, scene, renderer, controls;
         let geometry, material, mesh;
 
         //init();
@@ -45,7 +45,6 @@
             geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
             
             
-            
             material = new THREE.MeshNormalMaterial();
             mesh = new THREE.Mesh( geometry, material );
             scene.add( mesh );
@@ -55,7 +54,7 @@
             renderer.setSize( window.innerWidth, window.innerHeight );
             document.body.appendChild( renderer.domElement );
             
-            //const controls = new TrackballControls( camera, renderer.domElement );
+            controls = new THREE.TrackballControls( camera, renderer.domElement );
             
             animate();
 
@@ -65,10 +64,10 @@
 
             requestAnimationFrame( animate );
 
-            mesh.rotation.x += 0.01;
-            mesh.rotation.y += 0.02;
+            //mesh.rotation.x += 0.01;
+            //mesh.rotation.y += 0.02;
             
-            //controls.update();
+            controls.update();
             
             renderer.render( scene, camera );
 

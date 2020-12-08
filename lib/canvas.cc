@@ -127,10 +127,17 @@ extern "C"
     Nef_polyhedron N1 = *myNefCube;
     Nef_polyhedron initial = *myNefCube2;
     Nef_polyhedron N2(initial);
-
-
-    N2 = translate(N2,4,4,0);
-    N1 += N2;
+    
+    for(int i = 0; i < 4; i++){
+        for(int j = 0; j < 4; j++){
+            for(int k = 0; k < 4; k++){
+                printf("i:  %i\n", i);
+                Nef_polyhedron N2(initial);
+                N2 = translate(N2,1*i, 1*j,1*k);
+                N1 += N2;
+            }
+        }
+    }
 
     int index = writeToDisplayBuffer(&N1);
 

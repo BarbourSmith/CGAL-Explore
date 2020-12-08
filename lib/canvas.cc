@@ -2,23 +2,21 @@
 #include <stdlib.h>
 #include <time.h>
 #include <emscripten.h>
+#include <iostream>
 
 #include <CGAL/Simple_cartesian.h>
 #include <CGAL/polygon_mesh_processing.h>
 #include <CGAL/Polyhedron_3.h>
-#include <CGAL/Nef_polyhedron_3.h>
-#include <iostream>
 
 typedef CGAL::Simple_cartesian<double>     Kernel;
 typedef CGAL::Polyhedron_3<Kernel>         Polyhedron;
 typedef Kernel::Point_3                    Point_3;
 typedef Polyhedron::Halfedge_handle        Halfedge_handle;
 typedef Polyhedron::Vertex_iterator        Vertex_iterator;
-typedef Polyhedron::Facet_iterator                   Facet_iterator;
+typedef Polyhedron::Facet_iterator         Facet_iterator;
 typedef Polyhedron::Halfedge_around_facet_circulator Halfedge_facet_circulator;
-typedef CGAL::Nef_polyhedron_3<Kernel> Nef_polyhedron;
-typedef Kernel::Vector_3  Vector_3;
 typedef Kernel::Aff_transformation_3  Aff_transformation_3;
+typedef Kernel::Vector_3                   Vector_3;
 
 
 template <class Poly>
@@ -50,34 +48,31 @@ typename Poly::Halfedge_handle make_cube_3( Poly& P) {
 
 float displayBuffer[1000];
 
-Nef_polyhedron translate(Nef_polyhedron shape, int x, int y, int z){
+Polyhedron translate(Polyhedron shape, int x, int y, int z){
 
     Aff_transformation_3 aff(CGAL::TRANSLATION, Vector_3(x, y, z));
-    shape.transform(aff);
+    CGAL::Polygon_mesh_processing::transform(aff,shape);
 
     return shape;
 }
 
-Nef_polyhedron passingValue();
+Polyhedron passingValue();
 
 extern "C"
 {
 
-  Nef_polyhedron * createNewNefCube(){
+  Polyhedron * createNewCube(){
     std::cout << "Making cube\n";
     Polyhedron P;
     make_cube_3( P);
 
-    Nef_polyhedron * newlyCreatedNefPolyhedron = new Nef_polyhedron(P);
-    return newlyCreatedNefPolyhedron;
+    Polyhedron * newlyCreatedPolyhedron = new Polyhedron(P);
+    return newlyCreatedPolyhedron;
   }
 
+  int writeToDisplayBuffer(Polyhedron* toDisplay){
 
-  int writeToDisplayBuffer(Nef_polyhedron* toDisplay){
-
-    Nef_polyhedron N1 = *toDisplay;
-    Polyhedron P2;
-    N1.convert_to_polyhedron(P2);
+    Polyhedron P2 = *toDisplay;
 
     printf("Facets before: %lu\n", P2.size_of_facets());
 
@@ -121,16 +116,15 @@ extern "C"
 
   int displayShape(){
 
-    Nef_polyhedron* myNefCube = createNewNefCube();
-    Nef_polyhedron* myNefCube2 = createNewNefCube();
+    Polyhedron* myCube = createNewCube();
+    Polyhedron* myCube2 = createNewCube();
 
-    Nef_polyhedron N1 = *myNefCube;
-    Nef_polyhedron initial = *myNefCube2;
-    Nef_polyhedron N2(initial);
+    Polyhedron N1 = *myCube;
+    Polyhedron N2 = *myCube2;
 
-
-    N2 = translate(N2,4,4,0);
-    N1 += N2;
+    N2 = translate(N1,4,4,0);
+    
+    CGAL::Polygon_mesh_processing::corefine_and_compute_union(N1, N2, N2);
 
     int index = writeToDisplayBuffer(&N1);
 
@@ -141,10 +135,6 @@ extern "C"
     return displayBuffer;
   }
 
-  Nef_polyhedron * createNewNefPolyhdron(){
-    Nef_polyhedron * newlyCreatedNefPolyhedron = new Nef_polyhedron;
-    return newlyCreatedNefPolyhedron;
-  }
 }
 
 
